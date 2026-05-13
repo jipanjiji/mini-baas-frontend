@@ -2,10 +2,47 @@ export const useApi = () => {
   const config = useRuntimeConfig()
   const baseUrl = config.public.apiUrl
 
+  const getToken = (): string | null => {
+    if (import.meta.client) {
+      return localStorage.getItem('admin_token')
+    }
+    return null
+  }
+
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = getToken()
+    if (token) {
+      return { Authorization: `Bearer ${token}` }
+    }
+    return {}
+  }
+
+  // Login admin
+  const login = async (username: string, password: string) => {
+    const response = await $fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      body: { username, password }
+    })
+    return response
+  }
+
+  // Logout - clear token
+  const logout = () => {
+    if (import.meta.client) {
+      localStorage.removeItem('admin_token')
+    }
+  }
+
+  // Check if logged in
+  const isLoggedIn = (): boolean => {
+    return !!getToken()
+  }
+
   // Create a new project
   const createProject = async (name: string) => {
     const response = await $fetch(`${baseUrl}/api/projects`, {
       method: 'POST',
+      headers: getAuthHeaders(),
       body: { name }
     })
     return response
@@ -13,7 +50,9 @@ export const useApi = () => {
 
   // Get all projects
   const getProjects = async () => {
-    const response = await $fetch(`${baseUrl}/api/projects`)
+    const response = await $fetch(`${baseUrl}/api/projects`, {
+      headers: getAuthHeaders()
+    })
     return response
   }
 
@@ -40,6 +79,9 @@ export const useApi = () => {
   }
 
   return {
+    login,
+    logout,
+    isLoggedIn,
     createProject,
     getProjects,
     createEntry,
