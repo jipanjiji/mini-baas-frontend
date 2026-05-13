@@ -2,6 +2,7 @@
 const { createProject } = useApi()
 
 const projectName = ref('')
+const accessMode = ref('private')
 const loading = ref(false)
 const error = ref('')
 const showSuccess = ref(false)
@@ -22,6 +23,7 @@ const openModal = () => {
 const closeModal = () => {
   showModal.value = false
   projectName.value = ''
+  accessMode.value = 'private'
   error.value = ''
   createdApiKey.value = ''
   showSuccess.value = false
@@ -40,11 +42,12 @@ const handleSubmit = async () => {
   loading.value = true
 
   try {
-    const response = await createProject(projectName.value.trim()) as { success: boolean; data: { api_key: string } }
+    const response = await createProject(projectName.value.trim(), accessMode.value) as { success: boolean; data: { api_key: string } }
     if (response.success) {
       createdApiKey.value = response.data.api_key
       showSuccess.value = true
       projectName.value = ''
+      accessMode.value = 'private'
       emit('project-created')
       setTimeout(() => {
         showSuccess.value = false
@@ -107,6 +110,21 @@ const handleSubmit = async () => {
                   :disabled="loading"
                   autofocus
                 />
+              </div>
+
+              <div>
+                <label for="access-mode" class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Mode Akses
+                </label>
+                <select
+                  id="access-mode"
+                  v-model="accessMode"
+                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                  :disabled="loading"
+                >
+                  <option value="private">🔒 Private (butuh API Key untuk baca)</option>
+                  <option value="public">🌐 Public (siapa saja bisa baca)</option>
+                </select>
               </div>
 
               <button

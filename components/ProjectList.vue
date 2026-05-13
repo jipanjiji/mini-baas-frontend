@@ -3,6 +3,7 @@ interface Project {
   id: string
   name: string
   api_key: string
+  access_mode: string
   created_at: string
 }
 
@@ -82,11 +83,25 @@ const formatDate = (dateString: string) => {
         :key="project.id"
         class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg hover:border-indigo-200 transition-all duration-200 group"
       >
-        <!-- Project Name -->
+        <!-- Project Name & Access Mode Badge -->
         <div class="flex items-start justify-between mb-3">
-          <h3 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
-            {{ project.name }}
-          </h3>
+          <div class="flex items-center gap-2">
+            <h3 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+              {{ project.name }}
+            </h3>
+            <span
+              v-if="project.access_mode === 'private'"
+              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700"
+            >
+              🔒 Private
+            </span>
+            <span
+              v-else
+              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700"
+            >
+              🌐 Public
+            </span>
+          </div>
           <span class="text-xs text-gray-400 whitespace-nowrap ml-2">
             {{ formatDate(project.created_at) }}
           </span>

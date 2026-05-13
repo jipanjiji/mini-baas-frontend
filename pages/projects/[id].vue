@@ -11,6 +11,7 @@ interface Project {
   id: string
   name: string
   api_key: string
+  access_mode: string
   created_at: string
 }
 
@@ -50,8 +51,9 @@ onMounted(async () => {
       project.value = projectsResponse.data.find(p => p.id === projectId) || null
     }
 
-    // Get entries
-    const entriesResponse = await getEntries(projectId) as { success: boolean; data: Entry[] }
+    // Get entries - pass api_key for private projects
+    const apiKey = project.value?.access_mode === 'private' ? project.value.api_key : undefined
+    const entriesResponse = await getEntries(projectId, apiKey) as { success: boolean; data: Entry[] }
     if (entriesResponse.success) {
       entries.value = entriesResponse.data
     }

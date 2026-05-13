@@ -39,11 +39,11 @@ export const useApi = () => {
   }
 
   // Create a new project
-  const createProject = async (name: string) => {
+  const createProject = async (name: string, access_mode: string = 'private') => {
     const response = await $fetch(`${baseUrl}/api/projects`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: { name }
+      body: { name, access_mode }
     })
     return response
   }
@@ -72,9 +72,15 @@ export const useApi = () => {
     return response
   }
 
-  // Get entries for a project (public, no auth)
-  const getEntries = async (projectId: string) => {
-    const response = await $fetch(`${baseUrl}/api/entries/${projectId}`)
+  // Get entries for a project (public projects: no auth, private projects: requires api key)
+  const getEntries = async (projectId: string, apiKey?: string) => {
+    const headers: Record<string, string> = {}
+    if (apiKey) {
+      headers['x-api-key'] = apiKey
+    }
+    const response = await $fetch(`${baseUrl}/api/entries/${projectId}`, {
+      headers
+    })
     return response
   }
 
